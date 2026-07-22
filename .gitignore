@@ -1,0 +1,36 @@
+# IDE and OS files
+.idea/
+.vscode/
+*.swp
+*.DS_Store
+Thumbs.db
+
+# Environment variables (SENSITIVE)
+.env
+.env.local
+.env.*.local
+
+# Backend (Maven/Java)
+backend/target/
+backend/*.class
+backend/bin/
+backend/.settings/
+backend/.classpath
+backend/.project
+
+# Frontend (Node/React)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
+frontend/.parcel-cache/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.eslintcache
+frontend/coverage/
+
+# Logs
+*.log
+logs/
