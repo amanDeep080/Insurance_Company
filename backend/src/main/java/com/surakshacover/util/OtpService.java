@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -26,8 +27,8 @@ public class OtpService {
     private final RestTemplate restTemplate;
     private final SecureRandom random = new SecureRandom();
 
-    @Value("${app.resend.api-key}")
-    private String resendApiKey;
+    @Value("${app.brevo.api-key}")
+    private String brevoApiKey;
 
     @Value("${app.twofactor.api-key}")
     private String twoFactorApiKey;
@@ -62,45 +63,43 @@ public class OtpService {
 
         if ("email".equals(channel)) {
             String email = user.getEmail();
-            
-            // Log the OTP immediately so it's always available in IntelliJ console clearly
             log.info(">>>> [OTP] Email code for {}: {}", email, code);
 
-            if (resendApiKey == null || resendApiKey.isBlank()) {
+            if (brevoApiKey == null || brevoApiKey.isBlank()) {
+                log.warn("Brevo API key not set, skipping email delivery.");
                 return;
             }
 
             try {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.setBearerAuth(resendApiKey);
+                headers.set("api-key", brevoApiKey);
+
+                Map<String, Object> sender = new HashMap<>();
+                sender.put("name", "Suraksha Cover");
+                sender.put("email", "amandeepkumar0806@gmail.com"); // Must be your Brevo sender email
+
+                Map<String, Object> receiver = new HashMap<>();
+                receiver.put("email", email);
 
                 Map<String, Object> body = new HashMap<>();
-                body.put("from", "onboarding@resend.dev");
-                body.put("to", email);
-                body.put("subject", "Your Verification Code");
-                body.put("html", "<p>Your verification code is: <strong>" + code + "</strong></p>");
+                body.put("sender", sender);
+                body.put("to", List.of(receiver));
+                body.put("subject", "Your Verification Code - Suraksha Cover");
+                body.put("htmlContent", "<html><body><p>Hello,</p><p>Your verification code is: <strong>" + code + "</strong></p><p>This code expires in 10 minutes.</p></body></html>");
 
                 HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-                restTemplate.postForEntity("https://api.resend.com/emails", request, String.class);
+                restTemplate.postForEntity("https://api.brevo.com/v3/smtp/email", request, String.class);
+                log.info("Email successfully sent via Brevo to {}", email);
             } catch (Exception e) {
-                // Silently fail for external emails in trial mode
-                log.debug("Resend API could not deliver to external email: {}", email);
+                log.error("Brevo API Error: {}", e.getMessage());
             }
 
         } else if ("sms".equals(channel)) {
             String phone = user.getPhone();
-            
-            // Log for visibility in IntelliJ
             log.info(">>>> [OTP] SMS code for {}: {}", phone, code);
 
-            if (twoFactorApiKey == null || twoFactorApiKey.isBlank()) {
-                log.warn("SMS not sent: TWOFACTOR_API_KEY is missing in environment variables.");
-                return;
-            }
-
-            if (phone == null || phone.isBlank()) {
-                log.warn("SMS not sent: User has no phone number.");
+            if (twoFactorApiKey == null || twoFactorApiKey.isBlank() || phone == null || phone.isBlank()) {
                 return;
             }
 
