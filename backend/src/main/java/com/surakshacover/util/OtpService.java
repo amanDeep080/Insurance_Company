@@ -54,6 +54,38 @@ public class OtpService {
         deliver(userId, channel, code);
     }
 
+    public void sendToEmail(String email, String purpose) {
+        String code = String.valueOf(100000 + random.nextInt(900000));
+        OtpCode otp = OtpCode.builder()
+                .channel("email")
+                .code(code)
+                .purpose(purpose)
+                .email(email) // I need to add email field to OtpCode or reuse userId
+                .expiresAt(LocalDateTime.now().plusMinutes(10))
+                .build();
+        otpCodeRepository.save(otp);
+        deliverRaw("email", email, code);
+    }
+
+    private void deliverRaw(String channel, String target, String code) {
+        if ("email".equals(channel)) {
+            log.info(">>>> [OTP] Email code for {}: {}", target, code);
+            if (brevoApiKey == null || brevoApiKey.isBlank()) return;
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set("api-key", brevoApiKey);
+                Map<String, Object> body = new HashMap<>();
+                body.put("sender", Map.of("name", "Suraksha Cover", "email", "amandeepkumar0806@gmail.com"));
+                body.put("to", List.of(Map.of("email", target)));
+                body.put("subject", "Your Verification Code");
+                body.put("htmlContent", "<html><body>Your code is: <strong>" + code + "</strong></body></html>");
+                HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+                restTemplate.postForEntity("https://api.brevo.com/v3/smtp/email", request, String.class);
+            } catch (Exception e) { log.error("Brevo Error: {}", e.getMessage()); }
+        }
+    }
+
     private void deliver(Long userId, String channel, String code) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
@@ -117,6 +149,18 @@ public class OtpService {
         return otpCodeRepository
                 .findFirstByUserIdAndCodeAndPurposeAndConsumedFalseAndExpiresAtAfterOrderByCreatedAtDesc(
                         userId, code, purpose, LocalDateTime.now())
+                .map(otp -> {
+                    otp.setConsumed(true);
+                    otpCodeRepository.save(otp);
+                    return true;
+                })
+                .orElse(false);
+    }
+
+    public boolean verifyByEmail(String email, String code, String purpose) {
+        return otpCodeRepository
+                .findFirstByEmailAndCodeAndPurposeAndConsumedFalseAndExpiresAtAfterOrderByCreatedAtDesc(
+                        email, code, purpose, LocalDateTime.now())
                 .map(otp -> {
                     otp.setConsumed(true);
                     otpCodeRepository.save(otp);

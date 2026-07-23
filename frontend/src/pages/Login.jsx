@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -36,7 +36,8 @@ export default function Login() {
     setLoading(true);
     try {
       const user = await loginVerify(userId, code);
-      navigate(`/${user.role}`);
+      if (user.status !== 'ACTIVE') navigate('/status');
+      else navigate(`/${user.role}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid or expired code.');
     } finally {
@@ -99,6 +100,11 @@ export default function Login() {
                 >
                   {loading ? 'Sending code…' : 'Continue'} <ArrowRight size={16} />
                 </button>
+
+                <p className="text-sm text-center mt-6 text-[var(--color-muted)]">
+                  Don't have an account? <Link to="/signup" className="text-[var(--color-brass)] font-semibold hover:underline">Create one</Link>
+                </p>
+              </motion.form>
 
                 <p className="text-xs text-[var(--color-muted)] text-center mt-5">
                   Demo: admin@surakshacover.in · agent@surakshacover.in · customer@surakshacover.in — password: Password@123

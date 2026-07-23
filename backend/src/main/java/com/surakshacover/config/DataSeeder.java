@@ -44,6 +44,7 @@ public class DataSeeder implements CommandLineRunner {
                 .password(hash)
                 .role("customer")
                 .phone("7368915965")
+                .status("ACTIVE")
                 .verified(true)
                 .build())
         );
@@ -79,13 +80,13 @@ public class DataSeeder implements CommandLineRunner {
         if (userRepository.count() > 3) return;
 
         User admin = userRepository.save(User.builder()
-                .name("System Admin").email("admin@surakshacover.in").password(hash).role("admin").phone("9000000001").verified(true).build());
+                .name("System Admin").email("admin@surakshacover.in").password(hash).role("admin").phone("9000000001").status("ACTIVE").verified(true).build());
         
         userRepository.save(User.builder()
-                .name("Rhea Kapoor").email("agent@surakshacover.in").password(hash).role("agent").phone("9000000002").verified(true).build());
+                .name("Rhea Kapoor").email("agent@surakshacover.in").password(hash).role("agent").phone("9000000002").status("ACTIVE").verified(true).build());
 
         User demoUser = userRepository.save(User.builder()
-                .name("Demo Customer").email("customer@surakshacover.in").password(hash).role("customer").phone("9000000004").verified(true).build());
+                .name("Demo Customer").email("customer@surakshacover.in").password(hash).role("customer").phone("9000000004").status("ACTIVE").verified(true).build());
 
         Customer demoCustomer = customerRepository.save(Customer.builder()
                 .userId(demoUser.getId())

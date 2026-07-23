@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
+import { Link } from 'react-router-dom';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip } from 'chart.js';
 import api from '../services/api';
 import StatCard from '../components/StatCard';
@@ -29,11 +30,14 @@ export default function Dashboard() {
       <h1 className="font-display text-2xl text-[var(--color-ink)] mb-1">Dashboard</h1>
       <p className="text-sm text-[var(--color-muted)] mb-6">A live snapshot of policies, claims, and premium collection.</p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <StatCard label="Active policies" value={summary?.activePolicies ?? 0} index={0} />
         <StatCard label="Premium collected" value={summary?.premiumCollected ?? 0} prefix="₹" index={1} accent />
         <StatCard label="Pending claims" value={summary?.pendingClaims ?? 0} index={2} />
         <StatCard label="Customers" value={summary?.customerCount ?? 0} index={3} />
+        <Link to="/admin/approvals">
+          <StatCard label="Pending approvals" value={summary?.pendingApprovals ?? 0} index={4} />
+        </Link>
       </div>
 
       <div className="grid md:grid-cols-5 gap-6">

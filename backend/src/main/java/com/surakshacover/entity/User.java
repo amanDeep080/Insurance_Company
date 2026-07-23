@@ -29,6 +29,19 @@ public class User {
 
     private String phone;
 
+    @Builder.Default
+    @Column(nullable = false, length = 20)
+    private String status = "ACTIVE"; // PENDING, ACTIVE, REJECTED
+
+    @Column(name = "reviewed_by")
+    private Long reviewedBy;
+
+    @Column(name = "reviewed_at")
+    private LocalDateTime reviewedAt;
+
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
+
     @Column(name = "is_verified")
     @Builder.Default
     private boolean verified = false;

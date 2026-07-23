@@ -8,4 +8,7 @@ import java.util.Optional;
 public interface OtpCodeRepository extends JpaRepository<OtpCode, Long> {
     Optional<OtpCode> findFirstByUserIdAndCodeAndPurposeAndConsumedFalseAndExpiresAtAfterOrderByCreatedAtDesc(
             Long userId, String code, String purpose, LocalDateTime now);
+
+    Optional<OtpCode> findFirstByEmailAndCodeAndPurposeAndConsumedFalseAndExpiresAtAfterOrderByCreatedAtDesc(
+            String email, String code, String purpose, LocalDateTime now);
 }

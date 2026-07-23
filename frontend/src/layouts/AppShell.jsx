@@ -1,11 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Users, FileText, ShieldCheck, Wallet, FolderOpen, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, ShieldCheck, Wallet, FolderOpen, LogOut, UserPlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const NAV = {
   admin: [
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
+    { to: '/admin/approvals', label: 'Approvals', icon: UserPlus },
     { to: '/admin/customers', label: 'Customers', icon: Users },
     { to: '/admin/policies', label: 'Policies', icon: ShieldCheck },
     { to: '/admin/claims', label: 'Claims', icon: FileText },

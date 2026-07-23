@@ -13,8 +13,11 @@ public class OtpCode {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private Long userId;
+
+    private String email;
+    private String phone;
 
     @Column(nullable = false, length = 10)
     private String channel; // email, sms

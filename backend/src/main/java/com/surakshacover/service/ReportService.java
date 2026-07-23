@@ -1,9 +1,6 @@
 package com.surakshacover.service;
 
-import com.surakshacover.repository.ClaimRepository;
-import com.surakshacover.repository.CustomerRepository;
-import com.surakshacover.repository.PolicyRepository;
-import com.surakshacover.repository.PremiumPaymentRepository;
+import com.surakshacover.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +18,14 @@ public class ReportService {
     private final ClaimRepository claimRepository;
     private final PremiumPaymentRepository paymentRepository;
     private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
 
     public Map<String, Object> dashboardSummary() {
         long activePolicies = policyRepository.countByStatus("active");
         long expiredPolicies = policyRepository.countByStatus("expired");
         long pendingClaims = claimRepository.countByStatus("pending");
         long customerCount = customerRepository.count();
+        long pendingApprovals = userRepository.findByStatus("PENDING").size();
 
         BigDecimal premiumCollected = paymentRepository.findByPaymentStatus("paid").stream()
                 .map(p -> p.getAmount())
@@ -43,6 +42,7 @@ public class ReportService {
         result.put("pendingClaims", pendingClaims);
         result.put("premiumCollected", premiumCollected);
         result.put("customerCount", customerCount);
+        result.put("pendingApprovals", pendingApprovals);
         result.put("claimStats", claimStats);
         return result;
     }

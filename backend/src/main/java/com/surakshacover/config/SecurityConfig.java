@@ -1,6 +1,7 @@
 package com.surakshacover.config;
 
 import com.surakshacover.security.JwtAuthFilter;
+import com.surakshacover.security.StatusCheckFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,9 +28,11 @@ public class SecurityConfig {
     private String frontendUrl;
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final StatusCheckFilter statusCheckFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, StatusCheckFilter statusCheckFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.statusCheckFilter = statusCheckFilter;
     }
 
     @Bean
@@ -47,7 +50,8 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**", "/health", "/docs/**", "/v3/api-docs/**", "/uploads/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(statusCheckFilter, JwtAuthFilter.class);
 
         return http.build();
     }

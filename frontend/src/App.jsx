@@ -2,7 +2,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import AppShell from './layouts/AppShell';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
+import UserStatus from './pages/UserStatus';
 import Dashboard from './pages/Dashboard';
+import Approvals from './pages/Approvals';
 import Customers from './pages/Customers';
 import Policies from './pages/Policies';
 import Claims from './pages/Claims';
@@ -15,6 +18,12 @@ import MyDocuments from './pages/MyDocuments';
 function Protected({ roles, children }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
+
+  // Handle Pending/Rejected status
+  if (user.status && user.status !== 'ACTIVE') {
+    return <Navigate to="/status" replace />;
+  }
+
   if (roles && !roles.includes(user.role)) return <Navigate to={`/${user.role}`} replace />;
   return children;
 }
@@ -28,10 +37,13 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to={`/${user.role}`} replace /> : <Login />} />
+      <Route path="/login" element={user ? <Navigate to={user.status === 'ACTIVE' ? `/${user.role}` : '/status'} replace /> : <Login />} />
+      <Route path="/signup" element={user ? <Navigate to="/status" replace /> : <Signup />} />
+      <Route path="/status" element={user ? <UserStatus /> : <Navigate to="/login" replace />} />
 
       {/* Admin */}
       <Route path="/admin" element={<Protected roles={['admin']}><RoleShell role="admin"><Dashboard /></RoleShell></Protected>} />
+      <Route path="/admin/approvals" element={<Protected roles={['admin']}><RoleShell role="admin"><Approvals /></RoleShell></Protected>} />
       <Route path="/admin/customers" element={<Protected roles={['admin']}><RoleShell role="admin"><Customers /></RoleShell></Protected>} />
       <Route path="/admin/policies" element={<Protected roles={['admin']}><RoleShell role="admin"><Policies /></RoleShell></Protected>} />
       <Route path="/admin/claims" element={<Protected roles={['admin']}><RoleShell role="admin"><Claims /></RoleShell></Protected>} />
