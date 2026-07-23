@@ -104,7 +104,6 @@ export default function Login() {
                 <p className="text-sm text-center mt-6 text-[var(--color-muted)]">
                   Don't have an account? <Link to="/signup" className="text-[var(--color-brass)] font-semibold hover:underline">Create one</Link>
                 </p>
-              </motion.form>
 
                 <p className="text-xs text-[var(--color-muted)] text-center mt-5">
                   Demo: admin@surakshacover.in · agent@surakshacover.in · customer@surakshacover.in — password: Password@123
